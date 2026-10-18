@@ -37,4 +37,4 @@ if __name__ == "__main__":
     print(f"Total pages extracted: {len(pages)}")
 
     for page in pages:
-        print(f"Source: {page['source']} | Page: {page['page']} | Characters: {len(page['text'])}")
+        print(f"Source: {page['source']} | Page: {page['page']} | Text: {page['text'][:50]}")
