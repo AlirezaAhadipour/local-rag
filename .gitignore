@@ -3,5 +3,6 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 
-data/pdfs/
+data/pdfs/*
+!data/pdfs/.gitkeep
 vector_store/
