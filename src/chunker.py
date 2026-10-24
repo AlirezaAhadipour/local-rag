@@ -2,6 +2,7 @@ from pathlib import Path
 from src.pdf_loader import load_pdf
 
 
+# ------- chunk based of words -------
 def prepare_document(pages):
     words_with_pages = []
 
@@ -80,3 +81,58 @@ if __name__ == "__main__":
     cross_page_chunks = [chunk for chunk in chunks if len(chunk["pages"]) > 1]
     print(f"Chunks spanning multiple pages: {len(cross_page_chunks)}")
     for chunk in cross_page_chunks[:3]: print(f"Source: {chunk['source']} | Chunk ID: {chunk['chunk_id']} | Pages: {chunk['pages']}")
+
+
+
+
+# ------- chunk based on tokens -------
+def prepare_document_tokens(pages, tokenizer):
+    tokens_with_pages = []
+
+    for page in pages:
+        token_ids = tokenizer.encode(page["text"], add_special_tokens=False, truncation=False)
+
+        for token_id in token_ids:
+            tokens_with_pages.append({"token_id": token_id, "page": page["page"]})
+
+    return tokens_with_pages
+
+
+def chunk_document_tokens(tokens_with_pages, tokenizer, chunk_size=200, overlap=40):
+    if chunk_size <= 0 or not 0 <= overlap < chunk_size:
+        raise ValueError("Require chunk_size > 0 and 0 <= overlap < chunk_size")
+
+    chunks = []
+    step = chunk_size - overlap
+
+    for start in range(0, len(tokens_with_pages), step):
+        window = tokens_with_pages[start: start + chunk_size]
+
+        if not window:
+            break
+
+        token_ids = [item["token_id"] for item in window]
+
+        chunks.append({
+            "text": tokenizer.decode(token_ids, skip_special_tokens=True),
+            "pages": sorted(set(item["page"] for item in window))
+        })
+
+        if start + chunk_size >= len(tokens_with_pages):
+            break
+
+    return chunks
+
+
+def chunk_all_pages_tokens(folder_path, tokenizer, chunk_size=200, overlap=40):
+    all_chunks = []
+
+    for pdf_path in sorted((folder_path).glob("*.pdf")):
+        pages = load_pdf(pdf_path)
+        tokens = prepare_document_tokens(pages, tokenizer)
+        chunks = chunk_document_tokens(tokens, tokenizer, chunk_size, overlap)
+
+        for i, chunk in enumerate(chunk, start=1):
+            all_chunks.append({"source": pdf_path.name, "chunk_id": i, **chunk})
+
+    return all_chunks
