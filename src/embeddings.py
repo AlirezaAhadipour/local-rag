@@ -7,7 +7,7 @@ model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 chunks = chunk_all_pdfs_tokens("data/pdfs", model.tokenizer, chunk_size=200, overlap=40)
 texts = [chunk["text"] for chunk in chunks]
 
-token_lengths = [len(model.tokenizer.encode(text, add_special_token=True, truncation=False)) for text in texts]
+token_lengths = [len(model.tokenizer.encode(text, add_special_tokens=True, truncation=False)) for text in texts]
 
 print(f"Minimum tokens: {min(token_lengths)}")
 print(f"Average tokens: {sum(token_lengths) / len(token_lengths):.1f}")
