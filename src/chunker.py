@@ -1,8 +1,9 @@
 from pathlib import Path
 from src.pdf_loader import load_pdf
 
-
+######################################
 # ------- chunk based of words -------
+######################################
 def prepare_document(pages):
     words_with_pages = []
 
@@ -84,8 +85,9 @@ if __name__ == "__main__":
 
 
 
-
+#######################################
 # ------- chunk based on tokens -------
+#######################################
 def prepare_document_tokens(pages, tokenizer):
     tokens_with_pages = []
 
@@ -124,15 +126,15 @@ def chunk_document_tokens(tokens_with_pages, tokenizer, chunk_size=200, overlap=
     return chunks
 
 
-def chunk_all_pages_tokens(folder_path, tokenizer, chunk_size=200, overlap=40):
+def chunk_all_pdfs_tokens(folder_path, tokenizer, chunk_size=200, overlap=40):
     all_chunks = []
 
-    for pdf_path in sorted((folder_path).glob("*.pdf")):
+    for pdf_path in sorted(Path(folder_path).glob("*.pdf")):
         pages = load_pdf(pdf_path)
         tokens = prepare_document_tokens(pages, tokenizer)
         chunks = chunk_document_tokens(tokens, tokenizer, chunk_size, overlap)
 
-        for i, chunk in enumerate(chunk, start=1):
+        for i, chunk in enumerate(chunks, start=1):
             all_chunks.append({"source": pdf_path.name, "chunk_id": i, **chunk})
 
     return all_chunks
