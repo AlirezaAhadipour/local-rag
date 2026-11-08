@@ -6,3 +6,4 @@ __pycache__/
 data/pdfs/*
 !data/pdfs/.gitkeep
 vector_store/
+langchain_vector_store/
